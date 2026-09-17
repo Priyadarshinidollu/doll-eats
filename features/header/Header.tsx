@@ -6,7 +6,7 @@ const Header = () => {
   return (
     <header>
       <h1>Doll Eats</h1>
-      <SearchBar />
+
       <Cart />
     </header>
   );
