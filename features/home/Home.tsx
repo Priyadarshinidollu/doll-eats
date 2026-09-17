@@ -1,3 +1,4 @@
+"use client";
 import Hero from "../hero/Hero";
 import Menu from "../menu/Menu";
 import Offers from "../offers/Offers";

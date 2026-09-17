@@ -39,7 +39,7 @@ const Header = () => {
             Home
           </Link>
 
-          <Link href="/menu" className="text-sm text-amber-400">
+          <Link href="#menu" className="text-sm text-amber-400">
             Menu
           </Link>
 
