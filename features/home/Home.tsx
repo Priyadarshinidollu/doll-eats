@@ -5,7 +5,7 @@ import Offers from "../offers/Offers";
 
 const Home = () => {
   return (
-    <div>
+    <div className="">
       <Hero />
       <Menu />
       <Offers />

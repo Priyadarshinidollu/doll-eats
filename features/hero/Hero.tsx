@@ -4,7 +4,7 @@ import Link from "next/link";
 
 const Hero = () => {
   return (
-    <section className="relative w-full overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950">
+    <section className="relative w-full  overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950">
       {/* Background Image */}
       <div className="absolute inset-0">
         <Image
