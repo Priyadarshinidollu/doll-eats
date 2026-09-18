@@ -64,13 +64,13 @@ const Header = () => {
         {/* Right side */}
         <div className="flex items-center gap-3">
           {/* Search */}
-          <button
+          {/* <button
             type="button"
             aria-label="Search"
             className="hidden h-10 w-10 items-center justify-center rounded-full border border-zinc-800 text-zinc-300 transition hover:border-amber-500/50 hover:text-amber-400 sm:flex"
           >
             <span className="text-lg">⌕</span>
-          </button>
+          </button> */}
 
           {/* Cart */}
           <Link
@@ -90,12 +90,12 @@ const Header = () => {
           </Link>
 
           {/* Order button */}
-          <Link
+          {/* <Link
             href="/menu"
             className="hidden h-11 items-center rounded-full bg-amber-400 px-5 text-sm font-semibold text-black transition hover:bg-amber-300 sm:flex"
           >
             Order Now
-          </Link>
+          </Link> */}
         </div>
       </div>
     </header>

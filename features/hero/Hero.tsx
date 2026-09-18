@@ -69,7 +69,7 @@ const Hero = () => {
           <div className="mt-8 flex flex-wrap gap-4">
             {/* Primary button */}
             <Link
-              href="/menu"
+              href="/#menu"
               className="group flex h-12 items-center gap-3 rounded-full bg-amber-400 px-7 font-semibold text-black shadow-lg shadow-amber-500/20 transition duration-300 hover:bg-amber-300 hover:shadow-amber-500/30"
             >
               Explore Menu
