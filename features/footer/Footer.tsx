@@ -188,7 +188,7 @@ const Footer = () => {
 
             <span className="text-amber-400">♥</span>
 
-            <span>for food lovers</span>
+            <span>for food lovers by Priyadarsini</span>
           </div>
         </div>
       </div>

@@ -46,7 +46,10 @@ const Menu = () => {
   const items = currentMenuItems();
 
   return (
-    <section className="relative min-h-screen overflow-hidden bg-[#0a0a0a] px-4 py-12 sm:px-6 lg:px-8">
+    <section
+      id="menu"
+      className="relative min-h-screen overflow-hidden bg-[#0a0a0a] px-4 py-12 sm:px-6 lg:px-8"
+    >
       {/* Background glow */}
       <div className="pointer-events-none absolute left-1/2 top-0 h-72 w-72 -translate-x-1/2 rounded-full bg-amber-500/5 blur-3xl" />
 

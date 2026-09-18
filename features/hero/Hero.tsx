@@ -4,7 +4,7 @@ import Link from "next/link";
 
 const Hero = () => {
   return (
-    <section className="relative w-full  overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950">
+    <section className="relative w-full overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950">
       {/* Background Image */}
       <div className="absolute inset-0">
         <Image
@@ -26,9 +26,21 @@ const Hero = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
       </div>
 
+      {/* Hero Woman */}
+      <div className="pointer-events-none absolute bottom-0 right-[-40px] z-[5] w-[75%] sm:right-[-20px] sm:w-[60%] lg:right-0 lg:w-[52%] lg:max-w-[650px]">
+        <Image
+          src="/assets/hero/priya-hero.png"
+          alt="Woman enjoying a burger"
+          width={1000}
+          height={900}
+          priority
+          className="h-auto w-full object-contain object-right-bottom"
+        />
+      </div>
+
       {/* Content */}
-      <div className="relative z-10 flex min-h-[520px] items-center px-6 py-16 sm:px-10 lg:min-h-[600px] lg:px-16">
-        <div className="max-w-2xl">
+      <div className="relative z-10 flex min-h-[700px] sm:min-h-[650px] lg:min-h-[600px] items-center px-6 py-16 sm:px-10 lg:min-h-[600px] lg:px-16">
+        <div className="max-w-[85%] sm:max-w-2xl lg:max-w-[55%]">
           {/* Eyebrow */}
           <div className="mb-5 flex items-center gap-3">
             <span className="h-px w-10 bg-amber-400" />
@@ -67,19 +79,20 @@ const Hero = () => {
             </Link>
 
             {/* Secondary button */}
-            <button
-              type="button"
+            <Link
+              href="#about"
               className="flex h-12 items-center gap-3 rounded-full border border-amber-400/60 bg-black/20 px-7 font-medium text-white backdrop-blur-sm transition duration-300 hover:bg-amber-400/10"
             >
               <span className="flex h-7 w-7 items-center justify-center rounded-full border border-amber-400 text-xs text-amber-400">
                 ▶
               </span>
               Our Story
-            </button>
+            </Link>
           </div>
 
           {/* Features */}
           <div className="mt-12 flex flex-wrap gap-x-8 gap-y-5 border-t border-white/10 pt-6">
+            {/* Feature 1 */}
             <div className="flex items-center gap-3">
               <span className="text-xl text-amber-400">♧</span>
 
@@ -89,8 +102,10 @@ const Hero = () => {
               </div>
             </div>
 
+            {/* Divider */}
             <div className="hidden h-10 w-px bg-white/10 sm:block" />
 
+            {/* Feature 2 */}
             <div className="flex items-center gap-3">
               <span className="text-xl text-amber-400">♨</span>
 
@@ -100,8 +115,10 @@ const Hero = () => {
               </div>
             </div>
 
+            {/* Divider */}
             <div className="hidden h-10 w-px bg-white/10 sm:block" />
 
+            {/* Feature 3 */}
             <div className="flex items-center gap-3">
               <span className="text-xl text-amber-400">♡</span>
 
@@ -117,15 +134,6 @@ const Hero = () => {
       {/* Decorative corner */}
       <div className="absolute right-6 top-6 z-10 hidden h-16 w-16 rounded-full border border-amber-400/20 sm:block">
         <div className="absolute inset-2 rounded-full border border-amber-400/10" />
-      </div>
-
-      {/* Scroll indicator */}
-      <div className="absolute bottom-5 right-8 z-10 hidden flex-col items-center gap-2 text-zinc-400 lg:flex">
-        <div className="flex h-9 w-6 items-start justify-center rounded-full border border-zinc-500 pt-2">
-          <div className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-        </div>
-
-        <span className="text-[10px] uppercase tracking-widest">Scroll</span>
       </div>
     </section>
   );
