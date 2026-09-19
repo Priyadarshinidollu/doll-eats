@@ -2,21 +2,10 @@
 
 import React from "react";
 import { useCart } from "@/features/header/hooks/useCart";
-
+import { CheckoutForm } from "./type/CheckoutFormType";
 import CustomerDetails from "./CustomerDetails";
 import DeliveryAddress from "./DeliveryAddress";
 import PaymentMethod from "./PaymentMethod";
-
-type CheckoutForm = {
-  name: string;
-  phone: string;
-  email: string;
-  address: string;
-  city: string;
-  pincode: string;
-  landmark: string;
-  paymentMethod: "cod" | "upi" | "card";
-};
 
 const CheckoutPage = () => {
   const [orderPlaced, setOrderPlaced] = React.useState(false);

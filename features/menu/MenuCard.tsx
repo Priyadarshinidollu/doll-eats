@@ -25,7 +25,7 @@ const MenuCard: React.FC<MenuItem> = (item) => {
         />
 
         {/* Dark overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        <div className="absolute  inset-0  from-black/60 via-transparent to-transparent bg-linear-to-t" />
 
         {/* AVAILABLE STATUS */}
         <div className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full border border-white/30 bg-black/50 backdrop-blur-sm">
