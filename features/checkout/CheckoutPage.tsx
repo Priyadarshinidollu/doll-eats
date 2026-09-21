@@ -1,14 +1,28 @@
 "use client";
 
 import React from "react";
+import Script from "next/script";
+import { useRouter } from "next/navigation";
 import { useCart } from "@/features/header/hooks/useCart";
+import { useSession } from "@/lib/auth/client";
 import { CheckoutForm } from "./type/CheckoutFormType";
 import CustomerDetails from "./CustomerDetails";
 import DeliveryAddress from "./DeliveryAddress";
 import PaymentMethod from "./PaymentMethod";
+import type {
+  RazorpayFailureResponse,
+  RazorpaySuccessResponse,
+} from "@/types/razorpay";
 
 const CheckoutPage = () => {
+  const router = useRouter();
+  const { data: session, isPending: isSessionPending } = useSession();
   const [orderPlaced, setOrderPlaced] = React.useState(false);
+  const [placedOrderId, setPlacedOrderId] = React.useState<string | null>(
+    null,
+  );
+  const [isProcessing, setIsProcessing] = React.useState(false);
+  const [paymentError, setPaymentError] = React.useState<string | null>(null);
 
   const [form, setForm] = React.useState<CheckoutForm>({
     name: "",
@@ -18,9 +32,28 @@ const CheckoutPage = () => {
     city: "",
     pincode: "",
     landmark: "",
-    paymentMethod: "cod",
+    paymentMethod: "upi",
   });
-  const { cart } = useCart();
+  const { cart, isCartLoading, clearCart } = useCart();
+
+  // Checkout requires an account so the order can be tied to it.
+  React.useEffect(() => {
+    if (!isSessionPending && !session?.user) {
+      router.push("/login");
+    }
+  }, [isSessionPending, session, router]);
+
+  // Prefill what we already know from the account, once the session (which
+  // loads asynchronously) resolves - there's no earlier point to read it from.
+  React.useEffect(() => {
+    if (!session?.user) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setForm((prev) => ({
+      ...prev,
+      name: prev.name || session.user.name || "",
+      email: prev.email || session.user.email || "",
+    }));
+  }, [session]);
 
   const validateForm = () => {
     if (!form.name.trim()) {
@@ -49,7 +82,8 @@ const CheckoutPage = () => {
 
     return null;
   };
-  const handlePlaceOrder = () => {
+
+  const handlePlaceOrder = async () => {
     const error = validateForm();
 
     if (error) {
@@ -57,12 +91,119 @@ const CheckoutPage = () => {
       return;
     }
 
-    // Temporary: simulate successful order placement
-    setOrderPlaced(true);
+    setPaymentError(null);
+    setIsProcessing(true);
+
+    try {
+      const orderResponse = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: cart,
+          paymentMethod: form.paymentMethod,
+          customer: {
+            name: form.name,
+            email: form.email,
+            phone: form.phone,
+            address: form.address,
+            city: form.city,
+            pincode: form.pincode,
+            landmark: form.landmark,
+          },
+        }),
+      });
+
+      const orderData = await orderResponse.json();
+
+      if (!orderResponse.ok) {
+        throw new Error(orderData?.error ?? "Failed to create order");
+      }
+
+      const razorpayKeyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+
+      if (!razorpayKeyId || typeof window.Razorpay === "undefined") {
+        throw new Error("Payment gateway failed to load. Please try again.");
+      }
+
+      const razorpay = new window.Razorpay({
+        key: razorpayKeyId,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: "Doll Eats",
+        description: "Order payment",
+        order_id: orderData.order_id,
+        prefill: {
+          name: form.name,
+          email: form.email,
+          contact: form.phone,
+        },
+        theme: { color: "#fbbf24" },
+        handler: async (response: RazorpaySuccessResponse) => {
+          try {
+            const verifyResponse = await fetch("/api/verify-payment", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(response),
+            });
+
+            const verifyData = await verifyResponse.json();
+
+            if (!verifyResponse.ok || !verifyData.success) {
+              throw new Error(
+                verifyData?.error ?? "Payment verification failed",
+              );
+            }
+
+            clearCart();
+            setPlacedOrderId(verifyData.orderId ?? null);
+            setOrderPlaced(true);
+          } catch (verifyError) {
+            setPaymentError(
+              verifyError instanceof Error
+                ? verifyError.message
+                : "Payment verification failed",
+            );
+          } finally {
+            setIsProcessing(false);
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setIsProcessing(false);
+          },
+        },
+      });
+
+      razorpay.on("payment.failed", (response: RazorpayFailureResponse) => {
+        setPaymentError(
+          response.error?.description ?? "Payment failed. Please try again.",
+        );
+        setIsProcessing(false);
+      });
+
+      razorpay.open();
+    } catch (err) {
+      setPaymentError(
+        err instanceof Error ? err.message : "Something went wrong",
+      );
+      setIsProcessing(false);
+    }
   };
+
+  if (isSessionPending || !session?.user) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#0a0a0a] text-white">
+        <p className="text-sm text-zinc-500">Loading...</p>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-[#0a0a0a] px-4 py-12 text-white sm:px-6 lg:px-8">
+      <Script
+        src="https://checkout.razorpay.com/v1/checkout.js"
+        strategy="afterInteractive"
+      />
       <div className="mx-auto max-w-7xl">
         {/* HEADER */}
         <div>
@@ -95,17 +236,32 @@ const CheckoutPage = () => {
               <h2 className="text-lg font-semibold text-white">Your Order</h2>
 
               <p className="mt-1 text-sm text-zinc-500">
-                {cart.length} {cart.length === 1 ? "product" : "products"}
+                {isCartLoading
+                  ? "Loading your cart..."
+                  : `${cart.length} ${cart.length === 1 ? "product" : "products"}`}
               </p>
 
               {orderPlaced === false && (
-                <button
-                  type="button"
-                  onClick={handlePlaceOrder}
-                  className="mt-6 flex h-12 w-full items-center justify-center rounded-full bg-amber-400 font-semibold text-black transition hover:bg-amber-300 active:scale-[0.98]"
-                >
-                  Place Order
-                </button>
+                <>
+                  <button
+                    type="button"
+                    onClick={handlePlaceOrder}
+                    disabled={isProcessing || isCartLoading}
+                    className="mt-6 flex h-12 w-full items-center justify-center rounded-full bg-amber-400 font-semibold text-black transition hover:bg-amber-300 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isCartLoading
+                      ? "Loading cart..."
+                      : isProcessing
+                        ? "Processing..."
+                        : "Place Order"}
+                  </button>
+
+                  {paymentError && (
+                    <p className="mt-3 text-sm text-red-400">
+                      {paymentError}
+                    </p>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -136,14 +292,17 @@ const CheckoutPage = () => {
               </p>
 
               <p className="mt-1 font-mono text-sm font-semibold text-amber-400">
-                #DE-{Math.floor(100000 + Math.random() * 900000)}
+                #DE-{placedOrderId ?? "—"}
               </p>
             </div>
 
             {/* Button */}
             <button
               type="button"
-              onClick={() => setOrderPlaced(false)}
+              onClick={() => {
+                setOrderPlaced(false);
+                setPlacedOrderId(null);
+              }}
               className="mt-6 h-11 w-full rounded-full bg-amber-400 font-semibold text-black transition hover:bg-amber-300 active:scale-[0.98]"
             >
               Continue

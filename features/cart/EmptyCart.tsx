@@ -18,7 +18,7 @@ const EmptyCart = () => {
       </p>
 
       <Link
-        href="/menu"
+        href="/"
         className="mt-6 flex h-11 items-center justify-center rounded-full bg-amber-400 px-6 font-semibold text-black transition hover:bg-amber-300 active:scale-[0.98]"
       >
         Explore Menu

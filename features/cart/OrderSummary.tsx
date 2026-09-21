@@ -3,28 +3,23 @@
 import React from "react";
 import Link from "next/link";
 import { useCart } from "@/features/header/hooks/useCart";
-import menuItems from "@/data/menu";
-
-const FREE_DELIVERY_LIMIT = 500;
-const DELIVERY_FEE = 40;
-const TAX_RATE = 0.05;
+import { useMenu } from "@/features/menu/hooks/useMenu";
+import { FREE_DELIVERY_LIMIT, calculateOrderTotals } from "@/lib/pricing";
 
 const OrderSummary = () => {
   const { cart } = useCart();
+  const { menuItems } = useMenu();
 
-  const subtotal = cart.reduce((total, cartItem) => {
+  const pricedItems = cart.flatMap((cartItem) => {
     const menuItem = menuItems.find((item) => item.id === cartItem.id);
 
-    if (!menuItem) return total;
+    return menuItem
+      ? [{ price: menuItem.price, quantity: cartItem.quantity }]
+      : [];
+  });
 
-    return total + menuItem.price * cartItem.quantity;
-  }, 0);
-
-  const deliveryFee = subtotal >= FREE_DELIVERY_LIMIT ? 0 : DELIVERY_FEE;
-
-  const tax = Math.round(subtotal * TAX_RATE);
-
-  const total = subtotal + deliveryFee + tax;
+  const { subtotal, deliveryFee, tax, total } =
+    calculateOrderTotals(pricedItems);
 
   const remainingForFreeDelivery = Math.max(FREE_DELIVERY_LIMIT - subtotal, 0);
 

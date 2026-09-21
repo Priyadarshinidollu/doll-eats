@@ -1,12 +1,22 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCart } from "./hooks/useCart";
+import { authClient, useSession } from "@/lib/auth/client";
 
 const Header = () => {
   const { cart } = useCart();
+  const router = useRouter();
+  const { data: session, isPending } = useSession();
 
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
+
+  const handleLogout = async () => {
+    await authClient.signOut();
+    router.push("/");
+    router.refresh();
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-800/80 bg-[#0a0a0a]/90 backdrop-blur-xl">
@@ -89,13 +99,62 @@ const Header = () => {
             )}
           </Link>
 
-          {/* Order button */}
-          {/* <Link
-            href="/menu"
-            className="hidden h-11 items-center rounded-full bg-amber-400 px-5 text-sm font-semibold text-black transition hover:bg-amber-300 sm:flex"
-          >
-            Order Now
-          </Link> */}
+          {/* Auth */}
+          {!isPending && session?.user && (
+            <div className="flex items-center gap-3">
+              <div className="hidden items-center gap-2 sm:flex">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-500/10 text-sm font-semibold text-amber-400">
+                  {session.user.name?.charAt(0).toUpperCase() ?? "?"}
+                </div>
+
+                <span className="text-sm text-zinc-300">
+                  {session.user.name}
+                </span>
+              </div>
+
+              <Link
+                href="/orders"
+                className="hidden h-10 items-center rounded-full border border-zinc-800 px-4 text-sm text-zinc-300 transition hover:border-amber-500/50 hover:text-amber-400 sm:flex"
+              >
+                My Orders
+              </Link>
+
+              {session.user.role === "admin" && (
+                <Link
+                  href="/admin/menu"
+                  className="hidden h-10 items-center rounded-full border border-amber-500/30 bg-amber-500/5 px-4 text-sm text-amber-400 transition hover:border-amber-400 hover:bg-amber-500/10 sm:flex"
+                >
+                  Admin
+                </Link>
+              )}
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="h-10 rounded-full border border-zinc-800 px-4 text-sm text-zinc-300 transition hover:border-amber-500/50 hover:text-amber-400"
+              >
+                Logout
+              </button>
+            </div>
+          )}
+
+          {!isPending && !session?.user && (
+            <div className="flex items-center gap-2">
+              <Link
+                href="/login"
+                className="h-10 rounded-full px-4 text-sm text-zinc-300 transition hover:text-amber-400 flex items-center"
+              >
+                Login
+              </Link>
+
+              <Link
+                href="/signup"
+                className="hidden h-10 items-center rounded-full bg-amber-400 px-4 text-sm font-semibold text-black transition hover:bg-amber-300 sm:flex"
+              >
+                Sign Up
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </header>

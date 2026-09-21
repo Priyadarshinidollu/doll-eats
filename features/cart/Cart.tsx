@@ -2,13 +2,14 @@
 
 import React from "react";
 import { useCart } from "@/features/header/hooks/useCart";
-import menuItems from "@/data/menu";
+import { useMenu } from "@/features/menu/hooks/useMenu";
 import CartItem from "./CartItem";
 import OrderSummary from "./OrderSummary";
 import EmptyCart from "./EmptyCart";
 
 const CartPage = () => {
-  const { cart } = useCart();
+  const { cart, isCartLoading } = useCart();
+  const { menuItems } = useMenu();
 
   const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
 
@@ -41,7 +42,11 @@ const CartPage = () => {
         </div>
 
         {/* CONTENT */}
-        {cart.length === 0 ? (
+        {isCartLoading ? (
+          <div className="mt-10 text-center text-sm text-zinc-500">
+            Loading your cart...
+          </div>
+        ) : cart.length === 0 ? (
           <div className="mt-10">
             <EmptyCart />
           </div>

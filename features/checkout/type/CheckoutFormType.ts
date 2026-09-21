@@ -6,5 +6,5 @@ export type CheckoutForm = {
   city: string;
   pincode: string;
   landmark: string;
-  paymentMethod: "cod" | "upi" | "card";
+  paymentMethod: "upi" | "card";
 };

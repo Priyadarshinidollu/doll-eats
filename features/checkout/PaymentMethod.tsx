@@ -10,7 +10,7 @@ type CheckoutForm = {
   city: string;
   pincode: string;
   landmark: string;
-  paymentMethod: "cod" | "upi" | "card";
+  paymentMethod: "upi" | "card";
 };
 
 type CustomerDetailsProps = {
@@ -25,12 +25,6 @@ const PaymentMethod = ({
   setForm: React.Dispatch<React.SetStateAction<CheckoutForm>>;
 }) => {
   const methods = [
-    {
-      id: "cod" as const,
-      title: "Cash on Delivery",
-      description: "Pay when your order arrives",
-      icon: "💵",
-    },
     {
       id: "upi" as const,
       title: "UPI",

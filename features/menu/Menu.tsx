@@ -2,7 +2,8 @@
 
 import React from "react";
 import MenuCard from "./MenuCard";
-import menuItems, { MenuItem } from "../../data/menu";
+import type { MenuItem } from "../../data/menu";
+import { useMenu } from "./hooks/useMenu";
 import MenuHeader from "./MenuHeader";
 
 export type TSortBy = keyof Pick<
@@ -13,6 +14,7 @@ export type TSortBy = keyof Pick<
 export type TFilterBy = "all" | "veg" | "non-veg";
 
 const Menu = () => {
+  const { menuItems, isMenuLoading } = useMenu();
   const [searchTerm, setSearchTerm] = React.useState("");
   const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">("asc");
   const [sortBy, setSortBy] = React.useState<TSortBy>("price");
@@ -109,7 +111,11 @@ const Menu = () => {
         </div>
 
         {/* ================= MENU GRID ================= */}
-        {items.length > 0 ? (
+        {isMenuLoading ? (
+          <div className="flex min-h-64 items-center justify-center text-sm text-zinc-500">
+            Loading menu...
+          </div>
+        ) : items.length > 0 ? (
           <div className="grid w-full grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 ">
             {items.map((item) => (
               <MenuCard key={item.id} {...item} />
